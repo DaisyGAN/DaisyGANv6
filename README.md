@@ -1,5 +1,5 @@
 # DaisyGANv6
-This fork aims to take DaisyGAN v5 into a multi-process model of workload distribution.
+This fork aims to take DaisyGANv5 into a multi-process model of workload distribution.
 
 The concept here is to have a seperate network per word length sentence; e.g, 1 - 16 word sentences have 16 different networks.
 
