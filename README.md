@@ -5,5 +5,5 @@ The concept here is to have a seperate network per word length sentence; e.g, 1 
 
 This allows muli-process parallelisation of multiple CPU cores and threads, data can be aggregated from the DaisyGAN outputs however desired by scripts in higher level languages.
 
-- There is only one command line for DaisyGANv6 and it is:
+- **There is only one command line argumentfor DaisyGANv6 and it is:**<br>
 `./cfdgan <number of words per sentence to digest> <first layer size> <hidden layer size> <digest lines amount> <output lines amount>`
