@@ -71,7 +71,7 @@ ptron* d3;
 ptron d4;
 
 // normalised training data
-float** digest; //[DATA_SIZE][DIGEST_SIZE] = {0};
+float** digest;
 
 //word lookup table / index
 char wtable[TABLE_SIZE_MAX][WORD_SIZE] = {0};
@@ -963,6 +963,8 @@ int main(int argc, char *argv[])
     if(argc == 6)
     {
         DIGEST_SIZE = atoi(argv[1]);
+        if(DIGEST_SIZE > DIGEST_SIZE_MAX)
+            DIGEST_SIZE = DIGEST_SIZE_MAX;
         FIRSTLAYER_SIZE = atoi(argv[2]);
         HIDDEN_SIZE = atoi(argv[3]);
         DATA_SIZE = atoi(argv[4]);
