@@ -895,7 +895,7 @@ void rndGen(const char* file, const float max)
         for(int k = 0; k < OUTPUT_QUOTES; NULL)
         {
             float nstr[DIGEST_SIZE_MAX] = {0};
-            const int len = uRand(1, DIGEST_SIZE-1);
+            const int len = uRand(1, DIGEST_SIZE);
             for(int i = 0; i < len; i++)
                 nstr[i] = (((double)uRand(0, TABLE_SIZE))/TABLE_SIZE_H)-1.0;
 
@@ -926,7 +926,7 @@ float findBest(const uint maxopt)
         _loptimiser = i;
 
         const time_t st = time(0);
-        for(uint j = 0; j < 6; j++)
+        for(uint j = 0; j < 3; j++)
         {
             resetPerceptrons();
             const float rmse = trainDataset();
