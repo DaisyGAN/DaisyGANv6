@@ -75,7 +75,7 @@
                     $s8 += $file[8];
                     $stat .= "[".$i."] Core\nRMSE: " . $file[0] . "Variance: " . $file[1] . "TTMin: " . $file[2] . "LR: " . $file[3] . "Dropout: " . $file[4] . "Momentum: " . $file[5] . "Alpha: " . $file[6] . "Neurons: " . number_format($file[7]) . "\nWeights: " . number_format($file[8]) . "\n";
                     if(isset($file[9]))
-                        $stat .= $file[8] . "\n";
+                        $stat .= $file[9];
                     $stat .= "\n";
                     $loaded++;
                 }
