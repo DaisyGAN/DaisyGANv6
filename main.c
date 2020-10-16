@@ -970,9 +970,10 @@ uint fv = 0;
 void huntBestWeights()
 {
     uint min = 70;
+    const uint max = 95;
     uint highest = 0;
     time_t st = time(0);
-    while(fv < min || fv > 95) //we want random string to fail at-least 70% of the time / but we don't want it to fail all of the time
+    while(fv < min || fv > max) //we want random string to fail at-least 70% of the time / but we don't want it to fail all of the time
     {
         newSRAND(); //kill any predictability in the random generator
 
@@ -985,7 +986,7 @@ void huntBestWeights()
 
         loadWeights();
         fv = hasFailed();
-        if(fv > highest)
+        if(fv <= max && fv > highest)
             highest = fv;
 
         if(time(0) - st > 180) //If taking longer than 3 mins just settle with the highest logged in that period
