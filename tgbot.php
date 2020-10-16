@@ -14,7 +14,7 @@
     {
         $f = "port/" . rand(2, 15) . "/out.txt";
         $st = time();
-        while(file_exists($f) == FALSE)
+        while(file_exists($f) == FALSE || filesize($f) == 0)
         {
             $f = "port/" . rand(1, 16) . "/out.txt";
             if(time() - $st > 3)
@@ -30,7 +30,7 @@
         if(rand(0, 100) <= 50)
             $f = "port/16/out.txt";
         $st = time();
-        while(file_exists($f) == FALSE)
+        while(file_exists($f) == FALSE || filesize($f) == 0)
         {
             if($f == "port/16/out.txt")
                 $f = "port/1/out.txt";
