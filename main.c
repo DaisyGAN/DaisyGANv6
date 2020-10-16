@@ -887,7 +887,7 @@ float rndScentence()
     return r*100;
 }
 
-void rndGen(const char* file, const float max)
+uint rndGen(const char* file, const float max)
 {
     FILE* f = fopen(file, "w");
     if(f != NULL)
@@ -916,10 +916,10 @@ void rndGen(const char* file, const float max)
                 fprintf(f, "\n");
             }
 
-            if(time(0) - st > 600) // after 10 mins
+            if(time(0) - st > 16) // after 16 seconds
             {
-                if(count < 60000)
-                    return; // if the output rate was less than 100 per second, just quit.
+                if(count < 16*100)
+                    return 0; // if the output rate was less than 100 per second, just quit.
                 
                 count = 0;
                 st = time(0);
@@ -928,6 +928,8 @@ void rndGen(const char* file, const float max)
 
         fclose(f);
     }
+
+    return 1;
 }
 
 float findBest(const uint maxopt)
@@ -961,6 +963,41 @@ uint hasFailed()
             failvariance++;
     }
     return failvariance;
+}
+
+float rmse = 0;
+uint fv = 0;
+void huntBestWeights()
+{
+    uint min = 70;
+    uint highest = 0;
+    time_t st = time(0);
+    while(fv < min || fv > 95) //we want random string to fail at-least 70% of the time / but we don't want it to fail all of the time
+    {
+        newSRAND(); //kill any predictability in the random generator
+
+        _lrate      = uRandFloat(0.001, 0.03);
+        _ldropout   = uRandFloat(0.2, 0.3);
+        _lmomentum  = uRandFloat(0.1, 0.9);
+        _lrmsalpha  = uRandFloat(0.2, 0.99);
+
+        rmse = findBest(1);
+
+        loadWeights();
+        fv = hasFailed();
+        if(fv > highest)
+            highest = fv;
+
+        if(time(0) - st > 180) //If taking longer than 3 mins just settle with the highest logged in that period
+        {
+            min = highest;
+            highest = 0;
+            st = time(0);
+            printf("Taking too long, new target: %u\n", min);
+        }
+
+        printf("RMSE: %f / Fail: %u\n", rmse, fv);
+    }
 }
 
 
@@ -1013,36 +1050,10 @@ int main(int argc, char *argv[])
             _lmomentum  = uRandFloat(0.1, 0.9);
             _lrmsalpha  = uRandFloat(0.2, 0.99);
 
-            float rmse = 0;
-            uint fv = 0;
-            uint min = 70;
-            uint highest = 0;
-            while(fv < min || fv > 95) //we want random string to fail at-least 70% of the time / but we don't want it to fail all of the time
-            {
-                newSRAND(); //kill any predictability in the random generator
-
-                _lrate      = uRandFloat(0.001, 0.03);
-                _ldropout   = uRandFloat(0.2, 0.3);
-                _lmomentum  = uRandFloat(0.1, 0.9);
-                _lrmsalpha  = uRandFloat(0.2, 0.99);
-
-                rmse = findBest(1);
-
-                loadWeights();
-                fv = hasFailed();
-                if(fv > highest)
-                    highest = fv;
-
-                if(time(0) - st > 180) //If taking longer than 3 mins just settle with the highest logged in that period
-                {
-                    min = highest;
-                    printf("Taking too long, new target: %u\n", min);
-                }
-
-                printf("RMSE: %f / Fail: %u\n", rmse, fv);
-            }
-
-            rndGen(outputLocation, 0.1);
+            huntBestWeights();
+            while(rndGen(outputLocation, 0.1) == 0)
+                huntBestWeights();
+            
             printf("Just generated a new dataset.\n");
             timestamp();
             const double time_taken = ((double)(time(0)-st)) / 60.0;
