@@ -858,7 +858,7 @@ float trainDataset()
 
             // detrain discriminator on random word sequences 
             float output[DIGEST_SIZE_MAX] = {0};
-            const int len = uRand(1, DIGEST_SIZE-1);
+            const int len = uRand(1, DIGEST_SIZE);
             for(int i = 0; i < len; i++)
                 output[i] = (((double)uRand(0, TABLE_SIZE))/TABLE_SIZE_H)-1.0; //uRandWeight(-1, 1);
             doDiscriminator(&output[0], 0);
@@ -879,9 +879,9 @@ float trainDataset()
 float rndScentence()
 {
     float nstr[DIGEST_SIZE_MAX] = {0};
-    const int len = uRand(1, DIGEST_SIZE-1);
+    const int len = uRand(1, DIGEST_SIZE);
     for(int i = 0; i < len; i++)
-        nstr[i] = (((double)uRand(0, TABLE_SIZE))/TABLE_SIZE_H)-1.0;
+        nstr[i] = (((double)uRand(0, TABLE_SIZE))/TABLE_SIZE_H)-1.0; //qRandFloat(-1, 1)
 
     const float r = doDiscriminator(nstr, NO_LEARN);
     return r*100;
@@ -892,12 +892,14 @@ void rndGen(const char* file, const float max)
     FILE* f = fopen(file, "w");
     if(f != NULL)
     {
+        uint count = 0;
+        time_t st = time(0);
         for(int k = 0; k < OUTPUT_QUOTES; NULL)
         {
             float nstr[DIGEST_SIZE_MAX] = {0};
             const int len = uRand(1, DIGEST_SIZE);
             for(int i = 0; i < len; i++)
-                nstr[i] = (((double)uRand(0, TABLE_SIZE))/TABLE_SIZE_H)-1.0;
+                nstr[i] = (((double)uRand(0, TABLE_SIZE))/TABLE_SIZE_H)-1.0; //qRandFloat(-1, 1)
 
             const float r = doDiscriminator(nstr, NO_LEARN);
             if(1-r < max)
@@ -910,7 +912,17 @@ void rndGen(const char* file, const float max)
                 }
                 
                 k++;
+                count++;
                 fprintf(f, "\n");
+            }
+
+            if(time(0) - st > 600) // after 10 mins
+            {
+                if(count < 60000)
+                    return; // if the output rate was less than 100 per second, just quit.
+                
+                count = 0;
+                st = time(0);
             }
         }
 
@@ -925,7 +937,6 @@ float findBest(const uint maxopt)
     {
         _loptimiser = i;
 
-        const time_t st = time(0);
         for(uint j = 0; j < 3; j++)
         {
             resetPerceptrons();
@@ -1049,6 +1060,8 @@ int main(int argc, char *argv[])
                 fprintf(f, "%f\n", _lrmsalpha);
                 fprintf(f, "%u\n", FIRSTLAYER_SIZE + HIDDEN_SIZE + HIDDEN_SIZE + 1);
                 fprintf(f, "%u\n", FIRSTLAYER_SIZE*(DIGEST_SIZE+1) + HIDDEN_SIZE*(FIRSTLAYER_SIZE+1) + HIDDEN_SIZE*(HIDDEN_SIZE+1) + (HIDDEN_SIZE+1));
+                const time_t ltime = time(0);
+                fprintf(f, "%s\n", asctime(localtime(&ltime)));
                 fclose(f);
             }
         }
