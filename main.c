@@ -40,9 +40,9 @@ uint FIRSTLAYER_SIZE    = 128;
 uint HIDDEN_SIZE        = 128;
 uint DATA_SIZE          = 333;
 uint OUTPUT_QUOTES      = 33333;
-uint MOLPS              = 100;  // min output lines per second
-uint FVTS               = 540;  // fail variance timeout seconds
-uint STR                = 9;    // service tick / poll rate
+uint OUTPUT_MOLPS       = 100;  // min output lines per second
+uint FAIL_TIMEOUT       = 540;  // fail variance timeout seconds
+uint SERVICE_TICK       = 9;    // service tick / poll rate
 
 ///
 
@@ -921,7 +921,7 @@ uint rndGen(const char* file, const float max)
 
             if(time(0) - st > 16) // after 16 seconds
             {
-                if(count < 16 * MOLPS)
+                if(count < 16 * OUTPUT_MOLPS)
                     return 0; // if the output rate was less than MOLPS per second, just quit.
                 
                 count = 0;
@@ -992,7 +992,7 @@ uint huntBestWeights(float* rmse)
         if(fv <= max && fv > highest)
             highest = fv;
 
-        if(time(0) - st > FVTS) //If taking longer than 3 mins just settle with the highest logged in that period
+        if(time(0) - st > FAIL_TIMEOUT) //If taking longer than 3 mins just settle with the highest logged in that period
         {
             min = highest;
             highest = 0;
@@ -1028,11 +1028,11 @@ int main(int argc, char *argv[])
     if(argc > 4)
         OUTPUT_QUOTES =     atoi(argv[5]);
     if(argc > 5)
-        MOLPS =             atoi(argv[6]);
+        OUTPUT_MOLPS =      atoi(argv[6]);
     if(argc > 6)
-        FVTS =              atoi(argv[7]);
+        FAIL_TIMEOUT =      atoi(argv[7]);
     if(argc > 7)
-        STR =               atoi(argv[8]);
+        SERVICE_TICK =      atoi(argv[8]);
 
     // init memory
     initMemory();
@@ -1093,7 +1093,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        sleep(STR);
+        sleep(SERVICE_TICK);
     }
 
     // done
