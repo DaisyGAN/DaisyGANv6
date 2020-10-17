@@ -1046,6 +1046,9 @@ int main(int argc, char *argv[])
     printf("Hidden Layer: %u\n", HIDDEN_SIZE);
     printf("Digest Lines: %u\n", DATA_SIZE);
     printf("Output Lines: %u\n\n", OUTPUT_QUOTES);
+    printf("Output MOLPS: %u\n\n", OUTPUT_MOLPS);
+    printf("Fail Timeout: %u\n\n", FAIL_TIMEOUT);
+    printf("Service Tick: %u\n\n", SERVICE_TICK);
 
     // main loop
     printf("Running ! ...\n\n");
