@@ -104,7 +104,7 @@
             exit;
         }
 
-        if(strpos($j->{'message'}->{'text'}, "/squote") !== FALSE)
+        if(strpos($j->{'message'}->{'text'}, "/trash") !== FALSE)
         {
             $chatid = $j->{'message'}->{'chat'}->{'id'};
             file_get_contents("https://api.telegram.org/bot" . $token . "/sendMessage?chat_id=" . $chatid . "&text=".urlencode(garbageQuote()));
