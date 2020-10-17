@@ -969,6 +969,8 @@ float rmse = 0;
 uint fv = 0;
 void huntBestWeights()
 {
+    fv = 0;
+    rmse = 0;
     uint min = 70;
     const uint max = 95;
     uint highest = 0;
