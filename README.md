@@ -3,7 +3,7 @@ This fork aims to take DaisyGANv5 into a multi-process model of workload distrib
 
 The concept here is to have a separate network per word length sentence; e.g, 1 - 16 word sentences have 16 different networks.
 
-This allows multi-process parallelisation over multiple CPU cores and threads, data can be aggregated from the DaisyGAN outputs however desired by scripts in higher-level languages. I have provided a telegram bot aggregator in PHP `tgbot.php`.
+This allows multi-process parallelisation over multiple CPU cores and threads, data can be aggregated from the DaisyGAN outputs however desired by scripts in higher-level languages. I have provided a Telegram bot aggregator in PHP `tgbot.php`.
 
 As DaisyGAN expands over multiple processes the challenge becomes more a problem of aggregating enough input data, having a bot added to popular groups is no easy task, I suggest to aggregate the number of messages required to train DaisyGANv6 in an adequate time period that one sets up a regular account connected to lots of popular telegram groups and additionally uses a [MTProto](https://www.google.com/search?&q=telegram+proto+libraries) library to aggregate the messages from the regular telegram account.
 <br>
