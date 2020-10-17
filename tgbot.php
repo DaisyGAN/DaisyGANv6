@@ -73,7 +73,7 @@
                     $s6 += $file[6];
                     $s7 += $file[7];
                     $s8 += $file[8];
-                    $stat .= "[".$i."] Core\nRMSE: " . $file[0] . "Variance: " . $file[1] . "TTMin: " . $file[2] . "LR: " . $file[3] . "Dropout: " . $file[4] . "Momentum: " . $file[5] . "Alpha: " . $file[6] . "Neurons: " . number_format($file[7]) . "\nWeights: " . number_format($file[8]) . "\n";
+                    $stat .= "[".$i."] Core\nRMSE: " . $file[0] . "Variance: " . $file[1] . "TTMin: " . $file[2] . "L-Rate: " . $file[3] . "Dropout: " . $file[4] . "Momentum: " . $file[5] . "Alpha: " . $file[6] . "Neurons: " . number_format($file[7]) . "\nWeights: " . number_format($file[8]) . "\n";
                     if(isset($file[9]))
                         $stat .= $file[9];
                     $stat .= "\n";
@@ -88,7 +88,7 @@
             $s5 /= $loaded;
             $s6 /= $loaded;
 
-            $stat .= "[Totals]\nAvg RMSE: " . number_format($s0, 6) . "\nAvg Variance: " . number_format($s1, 1) . "\nAvg TTMin: " . number_format($s2, 2) . "\nAvg LR: " . number_format($s3, 6) . "\nAvg Dropout: " . number_format($s4, 6) . "\nAvg Momentum: " . number_format($s5, 6) . "\nAvg Alpha: " . number_format($s6, 6) . "\nNeurons: " . number_format($s7) . "\nWeights: " . number_format($s8) . "\n";
+            $stat .= "[Totals]\nAvg RMSE: " . number_format($s0, 6) . "\nAvg Variance: " . number_format($s1, 1) . "\nAvg TTMin: " . number_format($s2, 2) . "\nAvg L-Rate: " . number_format($s3, 6) . "\nAvg Dropout: " . number_format($s4, 6) . "\nAvg Momentum: " . number_format($s5, 6) . "\nAvg Alpha: " . number_format($s6, 6) . "\nNeurons: " . number_format($s7) . "\nWeights: " . number_format($s8) . "\n";
 
             $chatid = $j->{'message'}->{'chat'}->{'id'};
             file_get_contents("https://api.telegram.org/bot" . $token . "/sendMessage?chat_id=" . $chatid . "&text=".urlencode($stat));
