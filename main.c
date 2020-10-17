@@ -40,8 +40,9 @@ uint FIRSTLAYER_SIZE    = 128;
 uint HIDDEN_SIZE        = 128;
 uint DATA_SIZE          = 333;
 uint OUTPUT_QUOTES      = 33333;
-uint MOLPS              = 100; // min output lines per second
-uint FVTS               = 540; //fail variance timeout seconds
+uint MOLPS              = 100;  // min output lines per second
+uint FVTS               = 540;  // fail variance timeout seconds
+uint STR                = 9;    // service tick / poll rate
 
 ///
 
@@ -921,7 +922,7 @@ uint rndGen(const char* file, const float max)
             if(time(0) - st > 16) // after 16 seconds
             {
                 if(count < 16 * MOLPS)
-                    return 0; // if the output rate was less than 100 per second, just quit.
+                    return 0; // if the output rate was less than MOLPS per second, just quit.
                 
                 count = 0;
                 st = time(0);
@@ -967,12 +968,10 @@ uint hasFailed()
     return failvariance;
 }
 
-float rmse = 0;
-uint fv = 0;
-void huntBestWeights()
+uint huntBestWeights(float* rmse)
 {
-    fv = 0;
-    rmse = 0;
+    *rmse = 0;
+    uint fv = 0;
     uint min = 70;
     const uint max = 95;
     uint highest = 0;
@@ -986,7 +985,7 @@ void huntBestWeights()
         _lmomentum  = uRandFloat(0.1, 0.9);
         _lrmsalpha  = uRandFloat(0.2, 0.99);
 
-        rmse = findBest(1);
+        *rmse = findBest(1);
 
         loadWeights();
         fv = hasFailed();
@@ -1001,8 +1000,9 @@ void huntBestWeights()
             printf("Taking too long, new target: %u\n", min);
         }
 
-        printf("RMSE: %f / Fail: %u\n", rmse, fv);
+        printf("RMSE: %f / Fail: %u\n", *rmse, fv);
     }
+    return fv; // fail variance
 }
 
 
@@ -1012,29 +1012,27 @@ void huntBestWeights()
 
 int main(int argc, char *argv[])
 {
-    // init command
-    if(argc == 6)
+    // init commands
+    if(argc > 0)
     {
         DIGEST_SIZE = atoi(argv[1]);
         if(DIGEST_SIZE > DIGEST_SIZE_MAX)
             DIGEST_SIZE = DIGEST_SIZE_MAX;
-        FIRSTLAYER_SIZE = atoi(argv[2]);
-        HIDDEN_SIZE = atoi(argv[3]);
-        DATA_SIZE = atoi(argv[4]);
-        OUTPUT_QUOTES = atoi(argv[5]);
     }
-    if(argc == 8)
-    {
-        DIGEST_SIZE = atoi(argv[1]);
-        if(DIGEST_SIZE > DIGEST_SIZE_MAX)
-            DIGEST_SIZE = DIGEST_SIZE_MAX;
-        FIRSTLAYER_SIZE = atoi(argv[2]);
-        HIDDEN_SIZE = atoi(argv[3]);
-        DATA_SIZE = atoi(argv[4]);
-        OUTPUT_QUOTES = atoi(argv[5]);
-        MOLPS = atoi(argv[6]);
-        FVTS = atoi(argv[7]);
-    }
+    if(argc > 1)
+        FIRSTLAYER_SIZE =   atoi(argv[2]);
+    if(argc > 2)
+        HIDDEN_SIZE =       atoi(argv[3]);
+    if(argc > 3)
+        DATA_SIZE =         atoi(argv[4]);
+    if(argc > 4)
+        OUTPUT_QUOTES =     atoi(argv[5]);
+    if(argc > 5)
+        MOLPS =             atoi(argv[6]);
+    if(argc > 6)
+        FVTS =              atoi(argv[7]);
+    if(argc > 7)
+        STR =               atoi(argv[8]);
 
     // init memory
     initMemory();
@@ -1067,9 +1065,10 @@ int main(int argc, char *argv[])
             _lmomentum  = uRandFloat(0.1, 0.9);
             _lrmsalpha  = uRandFloat(0.2, 0.99);
 
-            huntBestWeights();
+            float rmse = 0;
+            uint fv = huntBestWeights(&rmse);
             while(rndGen(outputLocation, 0.1) == 0)
-                huntBestWeights();
+                fv = huntBestWeights(&rmse);
             
             printf("Just generated a new dataset.\n");
             timestamp();
@@ -1094,7 +1093,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        sleep(9);
+        sleep(STR);
     }
 
     // done
