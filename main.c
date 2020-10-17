@@ -1045,9 +1045,9 @@ int main(int argc, char *argv[])
     printf("First  Layer: %u\n", FIRSTLAYER_SIZE);
     printf("Hidden Layer: %u\n", HIDDEN_SIZE);
     printf("Digest Lines: %u\n", INPUT_LINES);
-    printf("Output Lines: %u\n\n", OUTPUT_QUOTES);
-    printf("Output MOLPS: %u\n\n", OUTPUT_MOLPS);
-    printf("Fail Timeout: %u\n\n", FAIL_TIMEOUT);
+    printf("Output Lines: %u\n", OUTPUT_QUOTES);
+    printf("Output MOLPS: %u\n", OUTPUT_MOLPS);
+    printf("Fail Timeout: %u\n", FAIL_TIMEOUT);
     printf("Service Tick: %u\n\n", SERVICE_TICK);
 
     // main loop
