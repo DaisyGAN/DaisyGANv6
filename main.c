@@ -38,7 +38,7 @@
 uint DIGEST_SIZE        = 16;
 uint FIRSTLAYER_SIZE    = 128;
 uint HIDDEN_SIZE        = 128;
-uint DATA_SIZE          = 333;
+uint INPUT_LINES        = 333;
 uint OUTPUT_QUOTES      = 33333;
 uint OUTPUT_MOLPS       = 100;  // min output lines per second
 uint FAIL_TIMEOUT       = 540;  // fail variance timeout seconds
@@ -107,10 +107,10 @@ void initMemory()
     if(d3 == NULL)
         printf("ERROR malloc() in initMemory() #d3\n");
 
-    digest = malloc(DATA_SIZE * sizeof(float*));
+    digest = malloc(INPUT_LINES * sizeof(float*));
     if(digest == NULL)
         printf("ERROR malloc() in initMemory() #digest\n");
-    for(int i = 0; i < DATA_SIZE; i++)
+    for(int i = 0; i < INPUT_LINES; i++)
     {
         digest[i] = malloc(DIGEST_SIZE * sizeof(float));
         if(digest[i] == NULL)
@@ -805,12 +805,12 @@ float doDiscriminator(const float* input, const float eo)
 float rmseDiscriminator()
 {
     float squaremean = 0;
-    for(int i = 0; i < DATA_SIZE; i++)
+    for(int i = 0; i < INPUT_LINES; i++)
     {
         const float r = 1 - doDiscriminator(&digest[i][0], NO_LEARN);
         squaremean += r*r;
     }
-    squaremean /= DATA_SIZE;
+    squaremean /= INPUT_LINES;
     return sqrt(squaremean);
 }
 
@@ -838,7 +838,7 @@ void loadDataset(const char* file)
             }
 
             index++;
-            if(index == DATA_SIZE)
+            if(index == INPUT_LINES)
                 break;
         }
         fclose(f);
@@ -854,7 +854,7 @@ float trainDataset()
     // train discriminator
     for(int j = 0; j < TRAINING_LOOPS; j++)
     {
-        for(int i = 0; i < DATA_SIZE; i++)
+        for(int i = 0; i < INPUT_LINES; i++)
         {
             // train discriminator on data
             doDiscriminator(&digest[i][0], 1);
@@ -1024,7 +1024,7 @@ int main(int argc, char *argv[])
     if(argc > 2)
         HIDDEN_SIZE =       atoi(argv[3]);
     if(argc > 3)
-        DATA_SIZE =         atoi(argv[4]);
+        INPUT_LINES =       atoi(argv[4]);
     if(argc > 4)
         OUTPUT_QUOTES =     atoi(argv[5]);
     if(argc > 5)
@@ -1044,7 +1044,7 @@ int main(int argc, char *argv[])
     printf("Digest Words: %u\n", DIGEST_SIZE);
     printf("First  Layer: %u\n", FIRSTLAYER_SIZE);
     printf("Hidden Layer: %u\n", HIDDEN_SIZE);
-    printf("Digest Lines: %u\n", DATA_SIZE);
+    printf("Digest Lines: %u\n", INPUT_LINES);
     printf("Output Lines: %u\n\n", OUTPUT_QUOTES);
     printf("Output MOLPS: %u\n\n", OUTPUT_MOLPS);
     printf("Fail Timeout: %u\n\n", FAIL_TIMEOUT);
@@ -1054,7 +1054,7 @@ int main(int argc, char *argv[])
     printf("Running ! ...\n\n");
     while(1)
     {
-        if(countLines(datasetLocation) >= DATA_SIZE)
+        if(countLines(datasetLocation) >= INPUT_LINES)
         {
             timestamp();
             const time_t st = time(0);
