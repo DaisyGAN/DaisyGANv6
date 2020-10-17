@@ -40,6 +40,8 @@ uint FIRSTLAYER_SIZE    = 128;
 uint HIDDEN_SIZE        = 128;
 uint DATA_SIZE          = 333;
 uint OUTPUT_QUOTES      = 33333;
+uint MOLPS              = 100; // min output lines per second
+uint FVTS               = 540; //fail variance timeout seconds
 
 ///
 
@@ -918,7 +920,7 @@ uint rndGen(const char* file, const float max)
 
             if(time(0) - st > 16) // after 16 seconds
             {
-                if(count < 16*100)
+                if(count < 16 * MOLPS)
                     return 0; // if the output rate was less than 100 per second, just quit.
                 
                 count = 0;
@@ -991,7 +993,7 @@ void huntBestWeights()
         if(fv <= max && fv > highest)
             highest = fv;
 
-        if(time(0) - st > 180) //If taking longer than 3 mins just settle with the highest logged in that period
+        if(time(0) - st > FVTS) //If taking longer than 3 mins just settle with the highest logged in that period
         {
             min = highest;
             highest = 0;
@@ -1020,6 +1022,18 @@ int main(int argc, char *argv[])
         HIDDEN_SIZE = atoi(argv[3]);
         DATA_SIZE = atoi(argv[4]);
         OUTPUT_QUOTES = atoi(argv[5]);
+    }
+    if(argc == 8)
+    {
+        DIGEST_SIZE = atoi(argv[1]);
+        if(DIGEST_SIZE > DIGEST_SIZE_MAX)
+            DIGEST_SIZE = DIGEST_SIZE_MAX;
+        FIRSTLAYER_SIZE = atoi(argv[2]);
+        HIDDEN_SIZE = atoi(argv[3]);
+        DATA_SIZE = atoi(argv[4]);
+        OUTPUT_QUOTES = atoi(argv[5]);
+        MOLPS = atoi(argv[6]);
+        FVTS = atoi(argv[7]);
     }
 
     // init memory
