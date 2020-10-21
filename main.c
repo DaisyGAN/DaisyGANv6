@@ -527,7 +527,7 @@ static inline float arctan(float x)
 
 static inline float lecun_tanh(float x)
 {
-    return 1.7159 * atan(0.666666667 * x);
+    return 1.7159 * tanh(0.666666667 * x);
 }
 
 static inline float sigmoid(float x)
@@ -703,12 +703,16 @@ float doDiscriminator(const float* input, const float eo)
     Backward Prop Error
 **************************************/
 
+    const float error = eo - output;
+
+    if(error == 0) // superflous unlikely to happen
+        return output;
+
     float e1[FIRSTLAYER_SIZE];
     float e2[HIDDEN_SIZE];
     float e3[HIDDEN_SIZE];
 
     // layer 4
-    const float error = eo - output;
     float e4 = _lgain * output * (1-output) * error;
 
     // layer 3 (output)
