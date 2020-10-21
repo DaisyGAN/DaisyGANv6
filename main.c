@@ -657,11 +657,11 @@ float Optional(const float input, const float error, float* momentum)
     if(_loptimiser == 1)
         return Momentum(input, error, momentum);
     else if(_loptimiser == 2)
-        return ADAGrad(input, error, momentum);
-    else if(_loptimiser == 3)
-        return RMSProp(input, error, momentum);
-    else if(_loptimiser == 4)
         return Nesterov(input, error, momentum);
+    else if(_loptimiser == 3)
+        return ADAGrad(input, error, momentum);
+    else if(_loptimiser == 4)
+        return RMSProp(input, error, momentum);
     
     return SGD(input, error);
 }
@@ -939,60 +939,45 @@ uint rndGen(const char* file, const float max)
     return 1;
 }
 
-float findBest(const uint maxopt)
-{
-    float lowest_low = 999999999;
-    for(uint i = 0; i <= maxopt; i++)
-    {
-        _loptimiser = i;
-
-        for(uint j = 0; j < 3; j++)
-        {
-            resetPerceptrons();
-            const float rmse = trainDataset();
-            if(rmse > 0 && rmse < lowest_low)
-            {
-                lowest_low = rmse;
-                saveWeights();
-            }
-        }
-    }
-    return lowest_low;
-}
-
-uint hasFailed()
+float hasFailed(const uint resolution)
 {
     int failvariance = 0;
-    for(int i = 0; i < 100; i++)
+    for(int i = 0; i < 100*resolution; i++)
     {
         const float r = rndScentence();
         if(r < 50)
             failvariance++;
     }
-    return failvariance;
+    if(resolution == 1)
+        return failvariance;
+    else
+        return (double)failvariance / (double)resolution;
 }
 
 uint huntBestWeights(float* rmse)
 {
     *rmse = 0;
-    uint fv = 0;
-    uint min = 70;
-    const uint max = 95;
-    uint highest = 0;
+    float fv = 0;
+    float min = 70;
+    const float max = 96.0;
+    float highest = 0;
     time_t st = time(0);
     while(fv < min || fv > max) //we want random string to fail at-least 70% of the time / but we don't want it to fail all of the time
     {
         newSRAND(); //kill any predictability in the random generator
 
+        _loptimiser = uRand(0, 4);
         _lrate      = uRandFloat(0.001, 0.03);
         _ldropout   = uRandFloat(0.2, 0.3);
-        _lmomentum  = uRandFloat(0.1, 0.9);
-        _lrmsalpha  = uRandFloat(0.2, 0.99);
+        if(_loptimiser == 1 || _loptimiser == 2)
+            _lmomentum  = uRandFloat(0.1, 0.9);
+        if(_loptimiser == 4)
+            _lrmsalpha  = uRandFloat(0.2, 0.99);
 
-        *rmse = findBest(1);
+        resetPerceptrons();
+        *rmse = trainDataset();
 
-        loadWeights();
-        fv = hasFailed();
+        fv = hasFailed(100);
         if(fv <= max && fv > highest)
             highest = fv;
 
@@ -1001,10 +986,10 @@ uint huntBestWeights(float* rmse)
             min = highest;
             highest = 0;
             st = time(0);
-            printf("Taking too long, new target: %u\n", min);
+            printf("Taking too long, new target: %.2f\n", min);
         }
 
-        printf("RMSE: %f / Fail: %u\n", *rmse, fv);
+        printf("RMSE: %f / Fail: %.2f\n", *rmse, fv);
     }
     return fv; // fail variance
 }
@@ -1073,10 +1058,11 @@ int main(int argc, char *argv[])
             _lrmsalpha  = uRandFloat(0.2, 0.99);
 
             float rmse = 0;
-            uint fv = huntBestWeights(&rmse);
+            float fv = huntBestWeights(&rmse);
             while(rndGen(outputLocation, 0.2) == 0)
                 fv = huntBestWeights(&rmse);
             
+            saveWeights();
             printf("Just generated a new dataset.\n");
             timestamp();
             const double time_taken = ((double)(time(0)-st)) / 60.0;
@@ -1086,7 +1072,7 @@ int main(int argc, char *argv[])
             if(f != NULL)
             {
                 fprintf(f, "%f\n", rmse);
-                fprintf(f, "%u\n", fv);
+                fprintf(f, "%f\n", fv);
                 fprintf(f, "%.2f\n", time_taken);
                 fprintf(f, "%f\n", _lrate);
                 fprintf(f, "%f\n", _ldropout);
