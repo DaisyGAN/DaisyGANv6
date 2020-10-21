@@ -1074,7 +1074,7 @@ int main(int argc, char *argv[])
 
             float rmse = 0;
             uint fv = huntBestWeights(&rmse);
-            while(rndGen(outputLocation, 0.1) == 0)
+            while(rndGen(outputLocation, 0.2) == 0)
                 fv = huntBestWeights(&rmse);
             
             printf("Just generated a new dataset.\n");
