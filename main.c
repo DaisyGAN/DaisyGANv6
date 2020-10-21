@@ -968,7 +968,7 @@ uint huntBestWeights(float* rmse)
 
         _loptimiser = uRand(0, 4);
         _lrate      = uRandFloat(0.001, 0.03);
-        _ldropout   = uRandFloat(0.2, 0.3);
+        _ldropout   = uRandFloat(0, 0.3);
         if(_loptimiser == 1 || _loptimiser == 2)
             _lmomentum  = uRandFloat(0.1, 0.9);
         if(_loptimiser == 4)
@@ -1051,11 +1051,6 @@ int main(int argc, char *argv[])
             loadTable(dictionaryLocation);
             loadDataset(datasetLocation);
             clearFile(datasetLocation);
-
-            _lrate      = uRandFloat(0.001, 0.03);
-            _ldropout   = uRandFloat(0.2, 0.3);
-            _lmomentum  = uRandFloat(0.1, 0.9);
-            _lrmsalpha  = uRandFloat(0.2, 0.99);
 
             float rmse = 0;
             float fv = huntBestWeights(&rmse);
