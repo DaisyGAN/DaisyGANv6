@@ -582,6 +582,26 @@ static inline float logit(float x)
     return log(x / (1 - x));
 }
 
+static inline float sigmoidDerivative(float x)
+{
+    return x * (1 - x);
+}
+
+static inline float tanhDerivative(float x)
+{
+    // if(x > 0)
+    //     return 1 - pow(x, 2);
+    // else
+    //     return 1 + pow(x, 2);
+
+    return 1-(x*x);
+}
+
+static inline float lecun_tanhDerivative(float x)
+{
+    return 1.14393 * pow((1 / cosh(2*x/3)), 2);
+}
+
 void softmax_transform(float* w, const uint32_t n)
 {
     float d = 0;
@@ -713,7 +733,7 @@ float doDiscriminator(const float* input, const float eo)
     float e3[HIDDEN_SIZE];
 
     // layer 4
-    float e4 = _lgain * output * (1-output) * error;
+    float e4 = _lgain * sigmoidDerivative(output) * error;
 
     // layer 3 (output)
     float ler = 0;
@@ -722,7 +742,7 @@ float doDiscriminator(const float* input, const float eo)
     ler += d4.bias * e4;
     
     for(int i = 0; i < HIDDEN_SIZE; i++)
-        e3[i] = _lgain * o3[i] * (1-o3[i]) * ler;
+        e3[i] = _lgain * lecun_tanhDerivative(o3[i]) * ler;
 
     // layer 2
     ler = 0;
@@ -732,7 +752,7 @@ float doDiscriminator(const float* input, const float eo)
             ler += d3[i].data[j] * e3[i];
         ler += d3[i].bias * e3[i];
         
-        e2[i] = _lgain * o2[i] * (1-o2[i]) * ler;
+        e2[i] = _lgain * lecun_tanhDerivative(o2[i]) * ler;
     }
 
     // layer 1
@@ -748,7 +768,7 @@ float doDiscriminator(const float* input, const float eo)
         int k0 = 0;
         if(k != 0)
             k0 = 1;
-        k += _lgain * o1[i] * (1-o1[i]) * ler;
+        k += _lgain * lecun_tanhDerivative(o1[i]) * ler;
         if(k0 == 1)
         {
             e1[ki] = k / 2;
