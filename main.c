@@ -596,7 +596,8 @@ static inline float tanhDerivative(float x)
 //https://stats.stackexchange.com/questions/60166/how-to-use-1-7159-tanh2-3-x-as-activation-function
 static inline float lecun_tanhDerivative(float x)
 {
-    return 1.14393 * pow((1 / cosh(2*x/3)), 2);
+    //return 1.14393 * pow((1 / cosh(2*x/3)), 2);
+    return 1.14393 * pow((1 / cosh(x * 0.666666666)), 2);
 }
 
 void softmax_transform(float* w, const uint32_t n)
@@ -1084,7 +1085,7 @@ int main(int argc, char *argv[])
             if(f != NULL)
             {
                 fprintf(f, "%f\n", rmse);
-                fprintf(f, "%f\n", fv);
+                fprintf(f, "%.2f\n", fv);
                 fprintf(f, "%.2f\n", time_taken);
                 fprintf(f, "%f\n", _lrate);
                 fprintf(f, "%f\n", _ldropout);
