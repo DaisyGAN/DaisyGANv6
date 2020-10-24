@@ -48,11 +48,12 @@ uint SERVICE_TICK       = 9;    // service tick / poll rate
 
 #define FAST_PREDICTABLE_MODE
 #define TRAINING_LOOPS 1
-float       _lrate      = 0.03;
-float       _ldropout   = 0.2;
-uint        _loptimiser = 1;
-float       _lmomentum  = 0.1;
-float       _lrmsalpha  = 0.2; //0.99
+uint        _linit      = 1;
+float       _lrate      = 0.016325;
+float       _ldropout   = 0.130533;
+uint        _loptimiser = 2;
+float       _lmomentum  = 0.530182;
+float       _lrmsalpha  = 0.578107; //0.99
 const float _lgain      = 1.0;
 
 //
@@ -440,7 +441,7 @@ void timestamp()
 // create layer
 //*************************************
 
-void createPerceptron(ptron* p, const uint weights)
+void createPerceptron(ptron* p, const uint weights, const float d)
 {
     p->data = malloc(weights * sizeof(float));
     if(p->data == NULL)
@@ -458,48 +459,120 @@ void createPerceptron(ptron* p, const uint weights)
 
     p->weights = weights;
 
-    for(uint i = 0; i < weights; i++)
+    //const float d = 1/sqrt(p->weights);
+    for(uint i = 0; i < p->weights; i++)
     {
-        p->data[i] = qRandWeight(-1, 1);
+        p->data[i] = qRandWeight(-d, d); //qRandWeight(-1, 1);
         p->momentum[i] = 0;
     }
 
-    p->bias = qRandWeight(-1, 1);
+    p->bias = 0; //qRandWeight(-1, 1);
     p->bias_momentum = 0;
 }
 
-void resetPerceptron(ptron* p)
+void resetPerceptron(ptron* p, const float d)
 {
+    //const float d = 1/sqrt(p->weights);
     for(uint i = 0; i < p->weights; i++)
     {
-        p->data[i] = qRandWeight(-1, 1);
+        p->data[i] = qRandWeight(-d, d); //qRandWeight(-1, 1);
         p->momentum[i] = 0;
     }
 
-    p->bias = qRandWeight(-1, 1);
+    p->bias = 0; //qRandWeight(-1, 1);
     p->bias_momentum = 0;
 }
 
 void createPerceptrons()
 {
+    const uint init_method = _linit;
+    float l1d = 1;
+    float l2d = 1;
+    float l3d = 1;
+    float l4d = 1;
+
+    // Xavier uniform
+    if(init_method == 1)
+    {
+        l1d = sqrt(6.0/(FIRSTLAYER_SIZE+HIDDEN_SIZE));
+        l2d = sqrt(6.0/(HIDDEN_SIZE+HIDDEN_SIZE));
+        l3d = sqrt(6.0/(HIDDEN_SIZE+HIDDEN_SIZE));
+        l4d = sqrt(6.0/(HIDDEN_SIZE+1));
+    }
+
+    // LeCun uniform
+    if(init_method == 2)
+    {
+        l1d = sqrt(3.0/DIGEST_SIZE);
+        l2d = sqrt(3.0/FIRSTLAYER_SIZE);
+        l3d = sqrt(3.0/HIDDEN_SIZE);
+        l4d = sqrt(3.0/HIDDEN_SIZE);
+    }
+
+    // What I thought was LeCun
+    if(init_method == 3)
+    {
+        l1d = pow(DIGEST_SIZE, 0.5);
+        l2d = pow(FIRSTLAYER_SIZE, 0.5);
+        l3d = pow(HIDDEN_SIZE, 0.5);
+        l4d = pow(HIDDEN_SIZE, 0.5);
+    }
+    
+    //printf("%f %f %f %f \n", l1d, l2d, l3d, l4d);
+
     for(int i = 0; i < FIRSTLAYER_SIZE; i++)
-        createPerceptron(&d1[i], DIGEST_SIZE);
+        createPerceptron(&d1[i], DIGEST_SIZE, l1d);
     for(int i = 0; i < HIDDEN_SIZE; i++)
-        createPerceptron(&d2[i], FIRSTLAYER_SIZE);
+        createPerceptron(&d2[i], FIRSTLAYER_SIZE, l2d);
     for(int i = 0; i < HIDDEN_SIZE; i++)
-        createPerceptron(&d3[i], HIDDEN_SIZE);
-    createPerceptron(&d4, HIDDEN_SIZE);
+        createPerceptron(&d3[i], HIDDEN_SIZE, l3d);
+    createPerceptron(&d4, HIDDEN_SIZE, l4d);
 }
 
 void resetPerceptrons()
 {
+    const uint init_method = _linit;
+    float l1d = 1;
+    float l2d = 1;
+    float l3d = 1;
+    float l4d = 1;
+
+    // Xavier uniform
+    if(init_method == 1)
+    {
+        l1d = sqrt(6.0/(FIRSTLAYER_SIZE+HIDDEN_SIZE));
+        l2d = sqrt(6.0/(HIDDEN_SIZE+HIDDEN_SIZE));
+        l3d = sqrt(6.0/(HIDDEN_SIZE+HIDDEN_SIZE));
+        l4d = sqrt(6.0/(HIDDEN_SIZE+1));
+    }
+
+    // LeCun uniform
+    if(init_method == 2)
+    {
+        l1d = sqrt(3.0/DIGEST_SIZE);
+        l2d = sqrt(3.0/FIRSTLAYER_SIZE);
+        l3d = sqrt(3.0/HIDDEN_SIZE);
+        l4d = sqrt(3.0/HIDDEN_SIZE);
+    }
+
+    // What I thought was LeCun
+    if(init_method == 3)
+    {
+        l1d = pow(DIGEST_SIZE, 0.5);
+        l2d = pow(FIRSTLAYER_SIZE, 0.5);
+        l3d = pow(HIDDEN_SIZE, 0.5);
+        l4d = pow(HIDDEN_SIZE, 0.5);
+    }
+
+    //printf("%f %f %f %f \n", l1d, l2d, l3d, l4d);
+
     for(int i = 0; i < FIRSTLAYER_SIZE; i++)
-        resetPerceptron(&d1[i]);
+        resetPerceptron(&d1[i], l1d);
     for(int i = 0; i < HIDDEN_SIZE; i++)
-        resetPerceptron(&d2[i]);
+        resetPerceptron(&d2[i], l2d);
     for(int i = 0; i < HIDDEN_SIZE; i++)
-        resetPerceptron(&d3[i]);
-    resetPerceptron(&d4);
+        resetPerceptron(&d3[i], l3d);
+    resetPerceptron(&d4, l4d);
 }
 
 
