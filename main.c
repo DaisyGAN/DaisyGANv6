@@ -816,9 +816,9 @@ float doDiscriminator(const float* input, const float eo)
         e3[i] = _lgain * lecun_tanhDerivative(o3[i]) * ler;
 
     // layer 2
-    ler = 0;
     for(int i = 0; i < HIDDEN_SIZE; i++)
     {
+        ler = 0;
         for(int j = 0; j < d3[i].weights; j++)
             ler += d3[i].data[j] * e3[i];
         ler += d3[i].bias * e3[i];
@@ -827,11 +827,11 @@ float doDiscriminator(const float* input, const float eo)
     }
 
     // layer 1
-    ler = 0;
     float k = 0;
     int ki = 0;
     for(int i = 0; i < FIRSTLAYER_SIZE; i++)
     {
+        ler = 0;
         for(int j = 0; j < d2[i].weights; j++)
             ler += d2[i].data[j] * e2[i];
         ler += d2[i].bias * e2[i];
