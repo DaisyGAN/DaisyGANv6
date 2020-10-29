@@ -670,7 +670,9 @@ static inline float tanhDerivative(float x)
 static inline float lecun_tanhDerivative(float x)
 {
     //return 1.14393 * pow((1 / cosh(2*x/3)), 2);
-    return 1.14393 * pow((1 / cosh(x * 0.666666666)), 2);
+    //return 1.14393 * pow((1 / cosh(x * 0.666666666)), 2);
+    const float sx = x * 0.6441272;
+    return 1.221595 - (sx*sx);
 }
 
 void softmax_transform(float* w, const uint32_t n)
@@ -720,13 +722,11 @@ float Momentum(const float input, const float error, float* momentum)
 
 float Nesterov(const float input, const float error, float* momentum)
 {
-    // const float ret = _lrate * ( input * (input + _lmomentum * momentum[0]) ) + (_lmomentum * momentum[0]);
-    // momentum[0] = input;
-    // return ret;
-
-    const float ret = _lrate * ( error * (input + _lmomentum * momentum[0]) ) + (_lmomentum * momentum[0]);
-    momentum[0] = input;
-    return ret;
+    const float vp = momentum[0];
+    const float v = _lmomentum * vp + ( _lrate * error * input );
+    const float n = v + _lmomentum * (v - momentum[0]);
+    momentum[0] = v;
+    return n;
 }
 
 float ADAGrad(const float input, const float error, float* momentum)
