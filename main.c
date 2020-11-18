@@ -298,7 +298,7 @@ float qRandFloat(const float min, const float max)
     const float rv = (float)rand();
     if(rv == 0)
         return min;
-    return ( (rv / RAND_MAX) * (max-min) ) + min;
+    return ( (rv / (float)RAND_MAX) * (max-min) ) + min;
 }
 
 float uRandFloat(const float min, const float max)
@@ -314,7 +314,7 @@ float uRandFloat(const float min, const float max)
     const float rv = (float)rand();
     if(rv == 0)
         return min;
-    return ( (rv / RAND_MAX) * (max-min) ) + min;
+    return ( (rv / (float)RAND_MAX) * (max-min) ) + min;
 #endif
 }
 
@@ -334,7 +334,7 @@ float qRandWeight(const float min, const float max)
         const float rv = (float)rand();
         if(rv == 0)
             return min;
-        const float rv2 = ( (rv / RAND_MAX) * (max-min) ) + min;
+        const float rv2 = ( (rv / (float)RAND_MAX) * (max-min) ) + min;
         pr = roundf(rv2 * 100) / 100; // two decimals of precision
     }
     return pr;
@@ -356,7 +356,7 @@ float uRandWeight(const float min, const float max)
         const float rv = (float)rand();
         if(rv == 0)
             return min;
-        const float rv2 = ( (rv / RAND_MAX) * (max-min) ) + min;
+        const float rv2 = ( (rv / (float)RAND_MAX) * (max-min) ) + min;
         pr = roundf(rv2 * 100) / 100; // two decimals of precision
     }
     return pr;
@@ -377,7 +377,7 @@ uint qRand(const uint min, const uint umax)
     const uint max = umax + 1;
     if(rv == 0)
         return min;
-    return ( ((float)rv / RAND_MAX) * (max-min) ) + min; //(rand()%(max-min))+min;
+    return ( ((float)rv / (float)RAND_MAX) * (max-min) ) + min; //(rand()%(max-min))+min;
 }
 
 uint uRand(const uint min, const uint umax)
@@ -394,7 +394,7 @@ uint uRand(const uint min, const uint umax)
     const uint max = umax + 1;
     if(rv == 0)
         return min;
-    return ( ((float)rv / RAND_MAX) * (max-min) ) + min; //(rand()%(max-min))+min;
+    return ( ((float)rv / (float)RAND_MAX) * (max-min) ) + min; //(rand()%(max-min))+min;
 #endif
 }
 
@@ -816,26 +816,28 @@ float doDiscriminator(const float* input, const float eo)
         e3[i] = _lgain * lecun_tanhDerivative(o3[i]) * ler;
 
     // layer 2
+    ler = 0;
     for(int i = 0; i < HIDDEN_SIZE; i++)
     {
-        ler = 0;
         for(int j = 0; j < d3[i].weights; j++)
             ler += d3[i].data[j] * e3[i];
         ler += d3[i].bias * e3[i];
-        
-        e2[i] = _lgain * lecun_tanhDerivative(o2[i]) * ler;
     }
+    for(int i = 0; i < HIDDEN_SIZE; i++)
+        e2[i] = _lgain * lecun_tanhDerivative(o2[i]) * ler;
 
     // layer 1
     float k = 0;
     int ki = 0;
+    ler = 0;
     for(int i = 0; i < FIRSTLAYER_SIZE; i++)
     {
-        ler = 0;
         for(int j = 0; j < d2[i].weights; j++)
             ler += d2[i].data[j] * e2[i];
         ler += d2[i].bias * e2[i];
-        
+    }
+    for(int i = 0; i < FIRSTLAYER_SIZE; i++)
+    {
         int k0 = 0;
         if(k != 0)
             k0 = 1;
